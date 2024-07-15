@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import socket
+import argparse
 import logging
 import time
 import json
@@ -8,9 +9,10 @@ import json
 def setup_logging(log_level):
     logging.basicConfig(level=log_level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-def main(log_level):
+def main(socket_path, log_level, frequency):
     setup_logging(log_level)
     logger = logging.getLogger('Publisher')
+    interval = 1.0 / frequency
 
     try:
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -25,7 +27,6 @@ def main(log_level):
             message = json.dumps(imu_data)
             logger.info(f'Sending IMU data: {message}')
             sock.sendall(message.encode('utf-8'))
-            # TODO: add interval
             time.sleep(interval)
             
     except Exception as e:
@@ -36,4 +37,10 @@ def main(log_level):
         logger.info('Socket closed')
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Publisher')
+    parser.add_argument('--socket-path', type=str, required=True, help='Path to socket')
+    parser.add_argument('--log-level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', help='Logging level')
+    parser.add_argument('--frequency', type=int, required=True, help='Frequency of sending data (times per second)')
+
+    args = parser.parse_args()
+    main(args.socket_path, args.log_level, args.frequency)

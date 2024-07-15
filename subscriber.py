@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import socket
+import argparse
 import logging
 import json
 
@@ -8,16 +9,14 @@ import json
 def setup_logging(log_level):
     logging.basicConfig(level=log_level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-def main():
+def main(socket_path, log_level, timeout_ms):
     setup_logging(log_level)
     logger = logging.getLogger('Consumer')
 
     try:
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        # TODO: add socket path
         sock.bind(socket_path)
         sock.listen(1)
-        # TODO: add timeout
         sock.settimeout(timeout_ms / 1000)
         logger.info('Waiting for a connection...')
 
@@ -54,5 +53,12 @@ def main():
         sock.close()
         logger.info('Socket closed')
 
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Consumer')
+    parser.add_argument('--socket-path', type=str, required=True, help='Path to the Unix domain socket')
+    parser.add_argument('--log-level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', help='Logging level')
+    parser.add_argument('--timeout-ms', type=int, default=100, help='Socket timeout in milliseconds')
+
+    args = parser.parse_args()
+    main(args.socket_path, args.log_level, args.timeout_ms)
