@@ -9,6 +9,9 @@ import json
 def setup_logging(log_level):
     logging.basicConfig(level=log_level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+def parse_imu_data(data):
+    return data["vel"], data["acc"], data["mag"]
+
 def main(socket_path, log_level, timeout_ms):
     setup_logging(log_level)
     logger = logging.getLogger('Consumer')

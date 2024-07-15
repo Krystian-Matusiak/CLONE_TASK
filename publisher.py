@@ -4,10 +4,20 @@ import socket
 import argparse
 import logging
 import time
+import random
 import json
 
 def setup_logging(log_level):
     logging.basicConfig(level=log_level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+def generate_imu_data():    
+    imu_data = {
+        "vel": [random.randint(0, 65535) for _ in range(3)],
+        "acc": [random.randint(0, 65535) for _ in range(3)],
+        "mag": [random.randint(0, 65535) for _ in range(3)]
+    }
+    return imu_data
+
 
 def main(socket_path, log_level, frequency):
     setup_logging(log_level)
